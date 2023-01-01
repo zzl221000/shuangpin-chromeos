@@ -31,6 +31,9 @@ goog.addDependency('F:/project/frontend/chromeos-ime-shuangpin/src/ime/view.js',
 require('../public/data')
 var LocalStorage = require('node-localstorage').LocalStorage;
 localStorage = new LocalStorage('./scratch');
+chrome={i18n:{
+    getMessage:name=>name
+    }}
 goog.require('goog.ime.chrome.os.Model')
 goog.require('goog.storage.mechanism.HTML5LocalStorage')
 window=global
@@ -52,13 +55,13 @@ model.configFactory.setInputTool('zh-t-i0-pinyin');
 model.configFactory.setShuangpinTool('flypy')
 model.setInputTool('zh-t-i0-pinyin');
 // model.setParser(null)
-Array.from('jihv').forEach(c=> model.updateSource(c))
+Array.from('ul').forEach(c=> model.updateSource(c))
 // model.moveCursorLeft()
 // model.moveCursorLeft()
 // model.revert()
 // model.revert()
 // model.revert()
 model.selectCandidate(0)
-Array.from('jihv').forEach(c=> model.updateSource(c))
+Array.from('ulpb').forEach(c=> model.updateSource(c))
 model.selectCandidate(0)
 console.log(model)

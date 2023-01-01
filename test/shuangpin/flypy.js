@@ -517,4 +517,4 @@ const FLYPY = {
 for(const k in FLYPY){
    this[k]=FLYPY[k]
 }
-console.log(FLYPY.parse('hv'));
+console.log(FLYPY.parse('ul'));
