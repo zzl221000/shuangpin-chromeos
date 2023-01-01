@@ -1,0 +1,25 @@
+{
+  "name": "chromeos-ime-shuangpin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deps-test": "closure-make-deps -r src/ime -f src/ime/background.js -f node_modules/google-closure-library/closure/goog/deps.js --closure-path node_modules/google-closure-library/closure/goog > test/background_deps.js",
+    "build": "node build.js",
+    "build-background": "google-closure-compiler --js=src/ime/**.js  --js=node_modules/google-closure-library/**.js --entry_point=goog.ime.chrome.os.Background --js_output_file dist/cros_background.js",
+    "build-option": "google-closure-compiler --js=src/ime/**.js --js=node_modules/google-closure-library/**.js --entry_point=goog.ime.chrome.os.PinyinOption --js_output_file dist/cros_option.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "google-closure-compiler": "^20221102.0.1",
+    "google-closure-library": "^20221102.0.0",
+    "node-localstorage": "^2.2.1"
+  },
+  "dependencies": {
+    "fs-extra": "^11.1.0",
+    "google-closure-deps": "^20221102.0.0"
+  }
+}
