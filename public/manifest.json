@@ -1,6 +1,6 @@
 
 {
-  "name": "Chrome OS IME (Pinyin)",
+  "name": "Chrome OS IME (Shuangpin)",
   "version": "1.0.0.0",
   "default_locale": "en",
   "permissions": [
@@ -18,7 +18,7 @@
     "type": "ime",
     "indicator": "双",
     "id": "zh-t-i0-pinyin",
-    "description": "Pinyin",
+    "description": "双拼输入法",
     "language": "zh",
     "layouts": ["us"]
     }
