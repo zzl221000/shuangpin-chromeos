@@ -149,7 +149,7 @@ goog.ime.offline.DataLoader.prototype.loadModelData = function(callBackFn) {
     return;
   }
 
-  if (window[goog.ime.offline.DataLoader.PARAMS.INPUT_TOOL] == this.inputTool) {
+  if (window[goog.ime.offline.DataLoader.PARAMS.INPUT_TOOL] === this.inputTool) {
     this.loadModelDataInternal_();
     this.dataReady = true;
     callBackFn();
@@ -187,24 +187,7 @@ goog.ime.offline.DataLoader.prototype.loadModelDataInternal_ = function() {
  */
 goog.ime.offline.DataLoader.prototype.buildTokens_ = function() {
   var code = goog.ime.offline.InputToolCode;
-  if (this.inputTool == code.INPUTMETHOD_ZHUYIN_CHINESE_TRADITIONAL) {
-    var untoneTokens = [];
-    var fullTokens = this.tokens.split('|');
-    for (var i = 0; i < fullTokens.length; ++i) {
-      var untoneToken = fullTokens[i].slice(0, fullTokens[i].length - 1);
-      if (untoneTokens.indexOf(untoneToken) < 0) {
-        untoneTokens.push(untoneToken);
-      }
-    }
-    this.untoneTokens = untoneTokens.join('|');
-
-    var initialTokens = [];
-    for (var i = 0x3105; i <= 0x3119; ++i) {
-      initialTokens.push(String.fromCharCode(i));
-    }
-    this.initialTokens = initialTokens.join('|');
-  } else if (this.inputTool == code.INPUTMETHOD_PINYIN_CHINESE_SIMPLIFIED ||
-      this.inputTool == code.INPUTMETHOD_PINYIN_CHINESE_TRADITIONAL) {
+if (this.inputTool === code.INPUTMETHOD_PINYIN_CHINESE_SIMPLIFIED) {
     this.initialTokens = 'b|p|m|f|d|t|n|l|k|g|h|j|q|x|zh|ch|sh|r|z|c|s|y|w';
   }
 };

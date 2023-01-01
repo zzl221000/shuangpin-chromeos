@@ -121,17 +121,17 @@ function ChineseConfig() {
   var Key = goog.ime.chrome.os.Key;
   var Modifier = goog.ime.chrome.os.Modifier;
   var langState = new goog.ime.chrome.os.State();
-  langState.desc = 'Initial input language is Chinese';
+  langState.desc = chrome.i18n.getMessage('init_lang');
   langState.value = true;
   langState.shortcut = [Modifier.SHIFT];
 
   var sbcState = new goog.ime.chrome.os.State();
-  sbcState.desc = 'Initial character width is Full';
+  sbcState.desc = chrome.i18n.getMessage('init_sbc');
   sbcState.value = false;
   sbcState.shortcut = [' ', Modifier.SHIFT];
 
   var puncState = new goog.ime.chrome.os.State();
-  puncState.desc = 'Initial punctuation width is Full';
+  puncState.desc = chrome.i18n.getMessage('init_punc');
   puncState.value = true;
   puncState.shortcut = ['\\.', Modifier.CTRL];
 

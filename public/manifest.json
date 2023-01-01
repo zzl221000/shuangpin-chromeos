@@ -16,6 +16,7 @@
     {
     "name": "__MSG_PINYIN_INPUTMETHOD__",
     "type": "ime",
+    "indicator": "双",
     "id": "zh-t-i0-pinyin",
     "description": "Pinyin",
     "language": "zh",

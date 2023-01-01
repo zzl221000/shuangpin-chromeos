@@ -591,17 +591,17 @@ goog.ime.chrome.os.Controller.prototype.getKeyActionTable = function() {
   var self = this;
 
   var onStageCondition = function() {
-    return self.model.status != goog.ime.chrome.os.Status.INIT;
+    return self.model.status !== goog.ime.chrome.os.Status.INIT;
   };
 
   var onStageNotSelectableCondition = function() {
-    return self.model.status != goog.ime.chrome.os.Status.INIT &&
-        self.model.status != goog.ime.chrome.os.Status.SELECT;
+    return self.model.status !== goog.ime.chrome.os.Status.INIT &&
+        self.model.status !== goog.ime.chrome.os.Status.SELECT;
   };
 
   var hasCandidatesCondition = function() {
-    return self.model.status == goog.ime.chrome.os.Status.FETCHED ||
-        self.model.status == goog.ime.chrome.os.Status.SELECT;
+    return self.model.status === goog.ime.chrome.os.Status.FETCHED ||
+        self.model.status === goog.ime.chrome.os.Status.SELECT;
   };
 
   var selectReg = new RegExp('[' + config.selectKeys + ']');

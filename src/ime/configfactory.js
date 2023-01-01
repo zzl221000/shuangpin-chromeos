@@ -132,7 +132,13 @@ goog.ime.chrome.os.ConfigFactory.prototype.getConfig = function(
   }
   return null;
 };
-goog.ime.chrome.os.ConfigFactory.prototype.getShuangPinParser=function (shuangpinCode){
+/**
+ * Gets the config for a given shuangpin code.
+ *
+ * @param {!string} shuangpinCode the input tool code.
+ * @return {goog.ime.chrome.os.Parser} The config.
+ */
+goog.ime.chrome.os.ConfigFactory.prototype.getShuangpinParser=function (shuangpinCode){
   if(goog.object.isEmpty(this.parsers_)){
     this.buildParsers_();
   }
@@ -165,13 +171,13 @@ goog.ime.chrome.os.ConfigFactory.prototype.getCurrentConfig = function() {
 /**
  * Gets the config for the current input tool.
  *
- * @return {goog.ime.chrome.os.Config} The config.
+ * @return {goog.ime.chrome.os.Parser} The config.
  */
 goog.ime.chrome.os.ConfigFactory.prototype.getCurrentParser = function() {
   if (goog.object.isEmpty(this.parsers_)) {
     this.buildParsers_();
   }
-  var code = this.shuangpinCode_;
+  const code = this.shuangpinCode_;
   if (code && this.parsers_[code]) {
     return this.parsers_[code];
   }
@@ -183,11 +189,11 @@ goog.ime.chrome.os.ConfigFactory.prototype.getCurrentParser = function() {
  * @private
  */
 goog.ime.chrome.os.ConfigFactory.prototype.buildConfigs_ = function() {
-  var code = goog.ime.offline.InputToolCode;
+  const code = goog.ime.offline.InputToolCode;
   this.map_[code.INPUTMETHOD_PINYIN_CHINESE_SIMPLIFIED] = new goog.ime.chrome.os.PinyinConfig();
 };
 
 goog.ime.chrome.os.ConfigFactory.prototype.buildParsers_=function (){
-  var code= goog.ime.offline.ShuangpinCode;
+  const code= goog.ime.offline.ShuangpinCode;
   this.parsers_[code.FLYPY] = new goog.ime.chrome.os.FlypyParser();
 }
