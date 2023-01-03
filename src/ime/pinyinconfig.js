@@ -23,7 +23,7 @@ goog.require('goog.ime.chrome.os.ChineseConfig');
 function PinyinConfig() {
   PinyinConfig.base(this,'constructor');
   this.punctuationReg = /[^a-z0-9 \r]/i;
-  this.editorCharReg = /[a-z\']/;
+  this.editorCharReg = /[a-z';]/;
   this.pageupCharReg = /[=.]/;
   this.pagedownCharReg = /[\-,]/;
 }

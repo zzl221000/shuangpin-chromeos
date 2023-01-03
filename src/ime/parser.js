@@ -498,6 +498,12 @@ goog.ime.chrome.os.Parser = function () {
      * @type {Object.<string, string>}
      */
     this.shuangpinMap = {}
+    /**
+     * 分号模式,兼容微软双拼
+     * @type {boolean}
+     */
+    this.semicolonMode = false
+
 };
 /**
  * 添加双拼配置
@@ -523,6 +529,7 @@ goog.ime.chrome.os.Parser.prototype.config = function (configuration) {
     }
     this.name = name
     this.mode = parseInt(mode)
+    this.semicolonMode = keymappings.indexOf(';') > -1
     if (this.mode === 0) {
         this.zeroInitial = zeroInitial
     }

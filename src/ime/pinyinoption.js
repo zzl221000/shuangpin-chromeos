@@ -34,6 +34,7 @@ goog.require('goog.events.EventWrapper');
 goog.require('goog.ui.Dialog')
 goog.require('goog.ui.Dialog.ButtonSet')
 goog.require('goog.ui.Dialog.DefaultButtonKeys')
+
 /**
  * Creates an option page for a given input tool code.
  *
@@ -64,6 +65,7 @@ function PinyinOption() {
     goog.events.listenOnce(window, goog.events.EventType.UNLOAD,
         goog.bind(this.dispose, this));
 }
+
 goog.ime.chrome.os.PinyinOption = PinyinOption;
 goog.inherits(goog.ime.chrome.os.PinyinOption, goog.Disposable);
 
@@ -235,7 +237,7 @@ goog.ime.chrome.os.PinyinOption.prototype.init_ = function () {
     const currentSchema = this.localStorageHandler_.getCurrentSchema();
     const schemasItem = this.createSchemasDiv_(OPTION.ItemIDs_.SCHEMAS, OPTION.ItemLabels_.SCHEMAS, schemas, currentSchema)
     const addCustomSchema = this.createAddCustomSchema_(OPTION.ItemIDs_.ADD_CUSTOM_SCHEMA, OPTION.ItemLabels_.ADD_CUSTOM_SCHEMA)
-    const dialogLabel=goog.dom.createDom(goog.dom.TagName.LABEL)
+    const dialogLabel = goog.dom.createDom(goog.dom.TagName.LABEL)
     dialogLabel.appendChild(goog.dom.createTextNode('交互模式添加双拼方案: '))
     selectionDiv.appendChild(dialogLabel)
     selectionDiv.appendChild(this.createAddSchemaDialog_(OPTION.CustomSchema_.MODE_NAMES, OPTION.CustomSchema_.INITIAL_KEYS, OPTION.CustomSchema_.FINALS_KEYS, OPTION.CustomSchema_.SYLLABLES))
@@ -376,7 +378,7 @@ goog.ime.chrome.os.PinyinOption.prototype.createAddSchemaDialog_ = function (mod
         console.log('syllablesSelect changed')
         const value = e.target.value
 
-        keysSelect.innerHTML=''
+        keysSelect.innerHTML = ''
         const opt = goog.dom.createDom(goog.dom.TagName.OPTION, {value: '^'})
         opt.appendChild(goog.dom.createTextNode('-'))
         keysSelect.appendChild(opt)
@@ -392,50 +394,158 @@ goog.ime.chrome.os.PinyinOption.prototype.createAddSchemaDialog_ = function (mod
             keysSelect.appendChild(opt)
         })
     })
-    const showMapping=goog.dom.createDom(goog.dom.TagName.DIV)
+    const showMapping = goog.dom.createDom(goog.dom.TagName.DIV)
 
-    goog.events.listen(keysSelect, goog.events.EventType.CHANGE, e => {
-        const syllable = syllablesSelect.value
-        if (syllable === '^') return;
-        tmpMapping[syllable] = e.target.value
-        showMapping.innerHTML=syllables.map(s => {
-            const k = tmpMapping[s] || '^'
-            return `${s}->${k}`
-        }).join("; ")
-    })
     syllablesDiv.appendChild(syllablesLabel)
     syllablesDiv.appendChild(syllablesSelect)
     syllablesDiv.appendChild(keysLabel)
     syllablesDiv.appendChild(keysSelect)
     dlgContent.appendChild(syllablesDiv)
     dlgContent.appendChild(showMapping)
+
+    let keyboard_mapping = {
+        q: [0, 1],
+        w: [0, 2],
+        e: [0, 3],
+        r: [0, 4],
+        t: [0, 5],
+        y: [0, 6],
+        u: [0, 7],
+        i: [0, 8],
+        o: [0, 9],
+        p: [0, 10],
+        a: [1, 1],
+        s: [1, 2],
+        d: [1, 3],
+        f: [1, 4],
+        g: [1, 5],
+        h: [1, 6],
+        j: [1, 7],
+        k: [1, 8],
+        l: [1, 9],
+        ';': [1, 10],
+        z: [2, 1],
+        x: [2, 2],
+        c: [2, 3],
+        v: [2, 4],
+        b: [2, 5],
+        n: [2, 6],
+        m: [2, 7],
+    }
+    let keyboard_word = [["{tab}", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", ""], ["{lock}", "a", "s", "d", "f", "g", "h", "j", "k", "l", ";"], ["{shift}", "z", "x", "c", "v", "b", "n", "m", "{blank}"]]
+    let Keyboard;
+    let keyboardInstance;
+    if (window.SimpleKeyboard) {
+        Keyboard = window.SimpleKeyboard.default
+        const keyboard = goog.dom.createDom(goog.dom.TagName.DIV, {
+            class: 'simple-keyboard'
+        })
+        dlgContent.appendChild(keyboard)
+        keyboardInstance = new Keyboard(
+            {
+                layout: {
+                    default: [
+                        '{tab} q w e r t y u i o p ',
+                        '{lock} a s d f g h j k l ;',
+                        '{shift} z x c v b n m {blank}'
+                    ]
+                },
+                display: {
+                    '{small}': ' ',
+                    '{blank}': '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp',
+                    '{tab}': 'tab',
+                    '{lock}': 'caps',
+                    '{shift}': '&nbsp&nbsp&nbspshift&nbsp&nbsp&nbsp',
+
+                }
+            }
+        )
+    }
+    goog.events.listen(keysSelect, goog.events.EventType.CHANGE, e => {
+        const syllable = syllablesSelect.value
+        if (syllable === '^') return;
+
+        if (tmpMapping[syllable]){
+            const [row,col]=keyboard_mapping[tmpMapping[syllable].toLowerCase()]
+            keyboard_word[row][col]=tmpMapping[syllable]
+        }
+        if (e.target.value!=='^'){
+            tmpMapping[syllable] = e.target.value
+        }else {
+            delete tmpMapping[syllable]
+        }
+        if (!keyboardInstance) {
+            showMapping.innerHTML = syllables.map(s => {
+                const k = tmpMapping[s] || '^'
+                return `${s}->${k}`
+            }).join("; ")
+        } else {
+            keyboardInstance.dispatch(inst => {
+                    const {finals, initials} = Object.keys(tmpMapping).reduce((group, curr) => {
+                        if (curr === 'sh' || curr === 'ch' || curr === 'zh') {
+                            group.initials[tmpMapping[curr].toLowerCase()] = curr
+                        } else {
+                            if (!group.finals[tmpMapping[curr].toLowerCase()]) {
+                                group.finals[tmpMapping[curr].toLowerCase()] = []
+                            }
+                            group.finals[tmpMapping[curr].toLowerCase()].push(curr)
+                        }
+                        return group
+                    }, {finals: {}, initials: {}})
+                    Object.keys(initials).map(k => {
+                        const [row, col] = keyboard_mapping[k]
+                        keyboard_word[row][col] = `${k}\n${initials[k]}<br>`
+                    })
+                    Object.keys(finals).map(k => {
+                        const [row, col] = keyboard_mapping[k]
+                        if (!initials[k]) {
+                            keyboard_word[row][col] = `${k}<br>`
+                        }
+                        finals[k].forEach(f => {
+                            keyboard_word[row][col] += `\n<i>${f}`
+                        })
+                    })
+                    inst.setOptions(
+                        {
+                            layout: {
+                                default: keyboard_word.map(line => line.join(' '))
+                            }
+                        }
+                    )
+
+                }
+            )
+        }
+
+    })
+
     goog.events.listen(button, goog.events.EventType.CLICK, e => {
         dlg.setVisible(true)
-        const okButton=dlg.getButtonSet().getButton('ok')
-        goog.events.listen(okButton,goog.events.EventType.CLICK,e2=>{
+        const okButton = dlg.getButtonSet().getButton('ok')
+        goog.events.listen(okButton, goog.events.EventType.CLICK, e2 => {
             e2.preventDefault()
             e2.stopPropagation()
-            const name=nameInput.value
-            const mode=modeSelect.value
-            const zeroInitial=zeroInitialSelect.value
-            const keymapping=syllables.map(s=>tmpMapping[s]||'^').map(s=>s.toLowerCase()).join('')
+            const name = nameInput.value
+            const mode = modeSelect.value
+            const zeroInitial = zeroInitialSelect.value.toLowerCase()
+            const keymapping = syllables.map(s => tmpMapping[s] || '^').map(s => s.toLowerCase()).join('')
             if (!name) {
                 console.log('方案名称为空')
                 return
             }
 
-            if (mode==='0' && (!zeroInitial||zeroInitial==='^')){
+            if (mode === '0' && (!zeroInitial || zeroInitial === '^')) {
                 console.log('固定声母模式需要选择声母')
                 return;
             }
-            if (localStorage){
-                localStorage.setItem(`schema_${name}`,[name,mode,zeroInitial,keymapping].join('*'))
+            if (localStorage) {
+                localStorage.setItem(`schema_${name}`, [name, mode, zeroInitial, keymapping].join('*'))
                 console.log('保存成功');
             }
-            nameInput.value=''
-            modeSelect.value=0
-            zeroInitialSelect.value='^'
-            tmpMapping={}
+            nameInput.value = ''
+            modeSelect.value = 0
+            zeroInitialSelect.value = '^'
+            tmpMapping = {}
             dlg.setVisible(false)
 
         })
@@ -625,9 +735,8 @@ goog.ime.chrome.os.PinyinOption.prototype.saveSettings = function () {
 };
 
 
-
 /** @override */
-goog.ime.chrome.os.PinyinOption.prototype.disposeInternal = function (){
+goog.ime.chrome.os.PinyinOption.prototype.disposeInternal = function () {
     goog.dispose(this.eventHandler_);
     PinyinOption.base(this, 'disposeInternal');
 };

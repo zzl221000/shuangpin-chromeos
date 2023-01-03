@@ -402,8 +402,13 @@ goog.ime.chrome.os.Model.prototype.enableUserDict = function (
         this.decoder_.enableUserDict(enable);
     }
 };
-
-
+/**
+ * 双拼是否包含;分号
+ * @returns {boolean}
+ */
+goog.ime.chrome.os.Model.prototype.semicolonMode=function (){
+    return this.parser_.semicolonMode;
+}
 /**
  * Updates the source text at the current cursor by the given transform result.
  *
