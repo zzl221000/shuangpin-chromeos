@@ -23,40 +23,47 @@ goog.require('goog.ime.chrome.os.ConfigFactory');
 goog.require('goog.ime.chrome.os.EventType');
 goog.require('goog.ime.chrome.os.Status');
 goog.require('goog.ime.offline.Decoder');
-
+goog.require('goog.ime.chrome.os.Parser')
 
 function Model() {
-  Model.base(this,'constructor');
+    Model.base(this, 'constructor');
 
-  /**
-   * The current candidates.
-   *
-   * @type {!Array.<!goog.ime.chrome.os.Candidate>}
-   */
-  this.candidates = [];
+    /**
+     * The current candidates.
+     *
+     * @type {!Array.<!goog.ime.chrome.os.Candidate>}
+     */
+    this.candidates = [];
 
-  /**
-   * The segments.
-   *
-   * @type {Array.<string>}
-   */
-  this.segments = [];
+    /**
+     * The segments.
+     *
+     * @type {Array.<string>}
+     */
+    this.segments = [];
 
-  /**
-   * The segments.
-   *
-   * @type {Array.<string>}
-   */
-  this.tokens = [];
+    /**
+     * The segments.
+     *
+     * @type {Array.<string>}
+     */
+    this.tokens = [];
 
-  /**
-   * The config factory
-   *
-   * @type {!goog.ime.chrome.os.ConfigFactory}
-   * @protected
-   */
-  this.configFactory = goog.ime.chrome.os.ConfigFactory.getInstance();
+    /**
+     * The config factory
+     *
+     * @type {!goog.ime.chrome.os.ConfigFactory}
+     * @protected
+     */
+    this.configFactory = goog.ime.chrome.os.ConfigFactory.getInstance();
+    /**
+     * 双拼解析器
+     * @type {goog.ime.chrome.os.Parser}
+     * @private
+     */
+    this.parser_ = new goog.ime.chrome.os.Parser
 }
+
 /**
  * The model, which manages the state transfers and commits.
  *
@@ -75,7 +82,7 @@ goog.inherits(goog.ime.chrome.os.Model, goog.events.EventTarget);
  */
 goog.ime.chrome.os.Model.prototype.decoder_ = null;
 
-goog.ime.chrome.os.Model.prototype.parser_ = null;
+
 /**
  * The status of the model.
  *
@@ -147,19 +154,19 @@ goog.ime.chrome.os.Model.prototype.ready = false;
  * @param {number} newHighlight The new highlight to update the model.
  * @protected
  */
-goog.ime.chrome.os.Model.prototype.updateHighlight = function(newHighlight) {
-  if (this.status != goog.ime.chrome.os.Status.SELECT) {
-    return;
-  }
-  if (newHighlight < 0) {
-    newHighlight = 0;
-  }
-  if (newHighlight >= this.candidates.length) {
-    return;
-  }
+goog.ime.chrome.os.Model.prototype.updateHighlight = function (newHighlight) {
+    if (this.status != goog.ime.chrome.os.Status.SELECT) {
+        return;
+    }
+    if (newHighlight < 0) {
+        newHighlight = 0;
+    }
+    if (newHighlight >= this.candidates.length) {
+        return;
+    }
 
-  this.highlightIndex = newHighlight;
-  this.notifyUpdates();
+    this.highlightIndex = newHighlight;
+    this.notifyUpdates();
 };
 
 
@@ -168,11 +175,11 @@ goog.ime.chrome.os.Model.prototype.updateHighlight = function(newHighlight) {
  *
  * @param {number} step The number of steps to move, it could be negative.
  */
-goog.ime.chrome.os.Model.prototype.moveHighlight = function(step) {
-  if (this.status != goog.ime.chrome.os.Status.SELECT) {
-    return;
-  }
-  this.updateHighlight(this.highlightIndex + step);
+goog.ime.chrome.os.Model.prototype.moveHighlight = function (step) {
+    if (this.status != goog.ime.chrome.os.Status.SELECT) {
+        return;
+    }
+    this.updateHighlight(this.highlightIndex + step);
 };
 
 
@@ -181,12 +188,12 @@ goog.ime.chrome.os.Model.prototype.moveHighlight = function(step) {
  *
  * @param {number} step The number of steps to move, it could be negative.
  */
-goog.ime.chrome.os.Model.prototype.movePage = function(step) {
-  if (this.status != goog.ime.chrome.os.Status.SELECT) {
-    return;
-  }
-  var pageSize = this.configFactory.getCurrentConfig().pageSize;
-  this.updateHighlight((this.getPageIndex() + step) * pageSize);
+goog.ime.chrome.os.Model.prototype.movePage = function (step) {
+    if (this.status != goog.ime.chrome.os.Status.SELECT) {
+        return;
+    }
+    var pageSize = this.configFactory.getCurrentConfig().pageSize;
+    this.updateHighlight((this.getPageIndex() + step) * pageSize);
 };
 
 
@@ -195,64 +202,64 @@ goog.ime.chrome.os.Model.prototype.movePage = function(step) {
  *
  * @return {number} The page index.
  */
-goog.ime.chrome.os.Model.prototype.getPageIndex = function() {
-  if (this.highlightIndex < 0 || this.candidates.length == 0) {
-    return 0;
-  }
-  var pageSize = this.configFactory.getCurrentConfig().pageSize;
-  return Math.floor(this.highlightIndex / pageSize);
+goog.ime.chrome.os.Model.prototype.getPageIndex = function () {
+    if (this.highlightIndex < 0 || this.candidates.length == 0) {
+        return 0;
+    }
+    var pageSize = this.configFactory.getCurrentConfig().pageSize;
+    return Math.floor(this.highlightIndex / pageSize);
 };
 
 
 /**
  * Moves the cursor to the left.
  */
-goog.ime.chrome.os.Model.prototype.moveCursorLeft = function() {
-  if (this.status != goog.ime.chrome.os.Status.SELECT ||
-      this.cursorPos <= 0) {
-    return;
-  }
+goog.ime.chrome.os.Model.prototype.moveCursorLeft = function () {
+    if (this.status != goog.ime.chrome.os.Status.SELECT ||
+        this.cursorPos <= 0) {
+        return;
+    }
 
-  if (this.cursorPos == this.commitPos) {
-    this.commitPos--;
-    this.segments[this.commitPos] = this.tokens[this.commitPos];
-  } else {
-    this.cursorPos--;
-  }
+    if (this.cursorPos == this.commitPos) {
+        this.commitPos--;
+        this.segments[this.commitPos] = this.tokens[this.commitPos];
+    } else {
+        this.cursorPos--;
+    }
 
-  this.source = this.segments.slice(this.commitPos, this.cursorPos).join('');
-  this.highlightIndex = -1;
-  this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
-  this.holdSelectStatus_ = true;
-  if (this.source) {
-    this.fetchCandidates_();
-  }
+    this.source = this.segments.slice(this.commitPos, this.cursorPos).join('');
+    this.highlightIndex = -1;
+    this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
+    this.holdSelectStatus_ = true;
+    if (this.source) {
+        this.fetchCandidates_();
+    }
 };
 
 
 /**
  * Moves the cursor to the right.
  */
-goog.ime.chrome.os.Model.prototype.moveCursorRight = function() {
-  if (this.status != goog.ime.chrome.os.Status.SELECT ||
-      this.cursorPos >= this.segments.length) {
-    return;
-  }
+goog.ime.chrome.os.Model.prototype.moveCursorRight = function () {
+    if (this.status != goog.ime.chrome.os.Status.SELECT ||
+        this.cursorPos >= this.segments.length) {
+        return;
+    }
 
-  var segment = this.segments[this.cursorPos];
-  var ch = segment.slice(0, 1);
-  var suffix = segment.slice(1);
-  if (suffix === '') {
-    this.segments = this.segments.slice(0, this.cursorPos).concat(
-        this.segments.slice(this.cursorPos + 1));
-  } else {
-    this.segments[this.cursorPos] = suffix;
-  }
-  this.source = this.source + ch;
-  this.highlightIndex = -1;
-  this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
-  this.holdSelectStatus_ = true;
-  this.fetchCandidates_();
+    var segment = this.segments[this.cursorPos];
+    var ch = segment.slice(0, 1);
+    var suffix = segment.slice(1);
+    if (suffix === '') {
+        this.segments = this.segments.slice(0, this.cursorPos).concat(
+            this.segments.slice(this.cursorPos + 1));
+    } else {
+        this.segments[this.cursorPos] = suffix;
+    }
+    this.source = this.source + ch;
+    this.highlightIndex = -1;
+    this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
+    this.holdSelectStatus_ = true;
+    this.fetchCandidates_();
 };
 
 
@@ -261,71 +268,72 @@ goog.ime.chrome.os.Model.prototype.moveCursorRight = function() {
  *
  * @param {boolean=} opt_commit True if the source should be committed.
  */
-goog.ime.chrome.os.Model.prototype.notifyUpdates = function(opt_commit) {
-  if (opt_commit) {
-    this.dispatchEvent(goog.ime.chrome.os.EventType.COMMIT);
-    console.log('segment',this.segments)
-    this.clear();
-  } else {
-    this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
-  }
+goog.ime.chrome.os.Model.prototype.notifyUpdates = function (opt_commit) {
+    if (opt_commit) {
+        this.dispatchEvent(goog.ime.chrome.os.EventType.COMMIT);
+        console.log('segment', this.segments)
+        this.clear();
+    } else {
+        this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
+    }
 };
 
 
 /**
  * Clears the model to its initial state.
  */
-goog.ime.chrome.os.Model.prototype.clear = function() {
-  if (this.status != goog.ime.chrome.os.Status.INIT) {
-    this.dispatchEvent(goog.ime.chrome.os.EventType.CLOSING);
-  }
-  if (this.decoder_) {
-    this.decoder_.clear();
-  }
-  this.source = '';
-  this.cursorPos = 0;
-  this.commitPos = 0;
-  this.segments = [];
-  this.context = '';
-  this.highlightIndex = -1;
-  this.candidates = [];
-  this.status = goog.ime.chrome.os.Status.INIT;
-  this.holdSelectStatus_ = false;
+goog.ime.chrome.os.Model.prototype.clear = function () {
+    if (this.status != goog.ime.chrome.os.Status.INIT) {
+        this.dispatchEvent(goog.ime.chrome.os.EventType.CLOSING);
+    }
+    if (this.decoder_) {
+        this.decoder_.clear();
+    }
+    this.source = '';
+    this.cursorPos = 0;
+    this.commitPos = 0;
+    this.segments = [];
+    this.context = '';
+    this.highlightIndex = -1;
+    this.candidates = [];
+    this.status = goog.ime.chrome.os.Status.INIT;
+    this.holdSelectStatus_ = false;
 };
 
 
 /**
  * Aborts the model, the behavior may be overridden by sub-classes.
  */
-goog.ime.chrome.os.Model.prototype.abort = function() {
-  this.clear();
+goog.ime.chrome.os.Model.prototype.abort = function () {
+    this.clear();
 };
 
 
 /**
  * Aborts the model, the behavior may be overridden by sub-classes.
  */
-goog.ime.chrome.os.Model.prototype.reset = function() {
-  this.clear();
-  if (this.decoder_) {
-    this.decoder_.persist();
-    this.decoder_ = null;
-  }
-  if (this.parser_) {
-    this.parser_ = null;
-  }
-  this.ready = false;
+goog.ime.chrome.os.Model.prototype.reset = function () {
+    this.clear();
+    if (this.decoder_) {
+        this.decoder_.persist();
+        this.decoder_ = null;
+    }
+    this.ready = false;
 };
-goog.ime.chrome.os.Model.prototype.setParser=function (parser){
-  this.parser_=parser
+/**
+ *
+ * @param {string} configuration
+ */
+goog.ime.chrome.os.Model.prototype.setParser = function (configuration) {
+    this.parser_.config(configuration)
 }
 
 /**
  * Enter the select status, and notify updates.
  */
-goog.ime.chrome.os.Model.prototype.enterSelect = function() {
-  this.enterSelectInternal();
-  this.notifyUpdates();
+goog.ime.chrome.os.Model.prototype.enterSelect = function () {
+    this.enterSelectInternal();
+    this.notifyUpdates();
 };
 
 
@@ -334,27 +342,31 @@ goog.ime.chrome.os.Model.prototype.enterSelect = function() {
  *
  * @protected
  */
-goog.ime.chrome.os.Model.prototype.enterSelectInternal = function() {
-  this.status = goog.ime.chrome.os.Status.SELECT;
-  this.highlightIndex = 0;
+goog.ime.chrome.os.Model.prototype.enterSelectInternal = function () {
+    this.status = goog.ime.chrome.os.Status.SELECT;
+    this.highlightIndex = 0;
 };
-
 
 /**
  * Sets the input tool.
  *
  * @param {string} inputToolCode The input tool code.
  */
-goog.ime.chrome.os.Model.prototype.setInputTool = function(inputToolCode) {
-  this.clear();
-  var config = this.configFactory.getCurrentConfig();
-  this.parser_= this.configFactory.getCurrentParser();
-  this.ready = false;
-  this.decoder_ = new goog.ime.offline.Decoder(
-      inputToolCode,
-      goog.bind(this.notifyDataReady_, this),
-      config.fuzzyExpansions,
-      config.enableUserDict);
+goog.ime.chrome.os.Model.prototype.setInputTool = function (inputToolCode) {
+    this.clear();
+    var config = this.configFactory.getCurrentConfig();
+    if (localStorage) {
+        const current_schema = localStorage.getItem('config_current_schema') || '小鹤双拼'
+        this.setParser(localStorage.getItem(`schema_${current_schema}`) || '小鹤双拼*2*^*iuvdjhcwfg^xmlnpbksqszxkrltvyovt')
+    } else {
+        this.setParser('小鹤双拼*2*^*iuvdjhcwfg^xmlnpbksqszxkrltvyovt')
+    }
+    this.ready = false;
+    this.decoder_ = new goog.ime.offline.Decoder(
+        inputToolCode,
+        goog.bind(this.notifyDataReady_, this),
+        config.fuzzyExpansions,
+        config.enableUserDict);
 };
 
 
@@ -364,14 +376,14 @@ goog.ime.chrome.os.Model.prototype.setInputTool = function(inputToolCode) {
  * @param {string} inputToolCode The input tool code.
  * @param {Array.<string>} enabledExpansions The enabled expansions.
  */
-goog.ime.chrome.os.Model.prototype.setFuzzyExpansions = function(
+goog.ime.chrome.os.Model.prototype.setFuzzyExpansions = function (
     inputToolCode, enabledExpansions) {
-  var config = this.configFactory.getConfig(inputToolCode);
-  config.fuzzyExpansions = enabledExpansions;
+    var config = this.configFactory.getConfig(inputToolCode);
+    config.fuzzyExpansions = enabledExpansions;
 
-  if (config == this.configFactory.getCurrentConfig()) {
-    this.decoder_.updateFuzzyPairs(config.fuzzyExpansions);
-  }
+    if (config == this.configFactory.getCurrentConfig()) {
+        this.decoder_.updateFuzzyPairs(config.fuzzyExpansions);
+    }
 };
 
 
@@ -381,14 +393,14 @@ goog.ime.chrome.os.Model.prototype.setFuzzyExpansions = function(
  * @param {string} inputToolCode The input tool code.
  * @param {boolean} enable True if user dictionary is enabled.
  */
-goog.ime.chrome.os.Model.prototype.enableUserDict = function(
+goog.ime.chrome.os.Model.prototype.enableUserDict = function (
     inputToolCode, enable) {
-  var config = this.configFactory.getConfig(inputToolCode);
-  config.enableUserDict = true;
+    var config = this.configFactory.getConfig(inputToolCode);
+    config.enableUserDict = true;
 
-  if (config == this.configFactory.getCurrentConfig()) {
-    this.decoder_.enableUserDict(enable);
-  }
+    if (config == this.configFactory.getCurrentConfig()) {
+        this.decoder_.enableUserDict(enable);
+    }
 };
 
 
@@ -397,67 +409,69 @@ goog.ime.chrome.os.Model.prototype.enableUserDict = function(
  *
  * @param {string} text The text to append.
  */
-goog.ime.chrome.os.Model.prototype.updateSource = function(text) {
-  // Check the max input length. If it's going to exceed the limit, do nothing.
-  if (this.source.length + text.length >
-      this.configFactory.getCurrentConfig().maxInputLen) {
-    this.selectCandidate(undefined, '');
-  }
+goog.ime.chrome.os.Model.prototype.updateSource = function (text) {
+    // Check the max input length. If it's going to exceed the limit, do nothing.
+    if (this.source.length + text.length >
+        this.configFactory.getCurrentConfig().maxInputLen) {
+        this.selectCandidate(undefined, '');
+    }
 
-  this.source += text;
-  this.highlightIndex = -1;
-  if (this.status == goog.ime.chrome.os.Status.INIT) {
-    this.dispatchEvent(goog.ime.chrome.os.EventType.OPENING);
-  }
-  this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
-  if (this.status == goog.ime.chrome.os.Status.SELECT) {
-    this.holdSelectStatus_ = true;
-  }
-  this.fetchCandidates_();
+    this.source += text;
+    this.highlightIndex = -1;
+    if (this.status == goog.ime.chrome.os.Status.INIT) {
+        this.dispatchEvent(goog.ime.chrome.os.EventType.OPENING);
+    }
+    this.dispatchEvent(goog.ime.chrome.os.EventType.MODELUPDATED);
+    if (this.status == goog.ime.chrome.os.Status.SELECT) {
+        this.holdSelectStatus_ = true;
+    }
+    this.fetchCandidates_();
 };
 
 
 /**
  * Processes revert, which is most likely caused by BACKSPACE.
  */
-goog.ime.chrome.os.Model.prototype.revert = function() {
-  if (this.status != goog.ime.chrome.os.Status.FETCHING) {
-    if (this.status == goog.ime.chrome.os.Status.SELECT) {
-      this.holdSelectStatus_ = true;
+goog.ime.chrome.os.Model.prototype.revert = function () {
+    if (this.status != goog.ime.chrome.os.Status.FETCHING) {
+        if (this.status == goog.ime.chrome.os.Status.SELECT) {
+            this.holdSelectStatus_ = true;
+        }
+
+        var deletedChar = '';
+        if (this.commitPos > 0) {
+            for (var i = 0; i < this.commitPos; ++i) {
+                this.segments[i] = this.tokens[i];
+            }
+            this.commitPos = 0;
+        } else if (this.cursorPos > 0) {
+            var segment = this.segments[this.cursorPos - 1];
+            deletedChar = segment.slice(-1);
+            segment = segment.slice(0, -1);
+            if (segment) {
+                this.segments[this.cursorPos - 1] = segment;
+            } else {
+                this.segments = this.segments.slice(0, this.cursorPos - 1).concat(
+                    this.segments.slice(this.cursorPos));
+                this.cursorPos--;
+            }
+
+        } else if (this.cursorPos === 0) {
+            return
+        }
+
+        this.source = this.segments.slice(this.commitPos, this.cursorPos).join('');
+        if (this.source === '' && this.segments.length === 0) {
+            // this.notifyUpdates(true);
+            this.clear()
+        } else {
+            this.notifyUpdates();
+            if (deletedChar === '\'') {
+                this.decoder_.clear();
+            }
+            this.fetchCandidates_();
+        }
     }
-
-    var deletedChar = '';
-    if (this.commitPos > 0) {
-      for (var i = 0; i < this.commitPos; ++i) {
-        this.segments[i] = this.tokens[i];
-      }
-      this.commitPos = 0;
-    } else if (this.cursorPos > 0) {
-      var segment = this.segments[this.cursorPos - 1];
-      deletedChar = segment.slice(-1);
-      segment = segment.slice(0, -1);
-      if (segment) {
-        this.segments[this.cursorPos - 1] = segment;
-      } else {
-        this.segments = this.segments.slice(0, this.cursorPos - 1).concat(
-            this.segments.slice(this.cursorPos));
-        this.cursorPos--;
-      }
-
-    }else if (this.cursorPos===0){return}
-
-    this.source = this.segments.slice(this.commitPos, this.cursorPos).join('');
-    if (this.source === '' && this.segments.length===0) {
-      // this.notifyUpdates(true);
-      this.clear()
-    } else {
-      this.notifyUpdates();
-      if (deletedChar === '\'') {
-        this.decoder_.clear();
-      }
-      this.fetchCandidates_();
-    }
-  }
 };
 
 
@@ -470,52 +484,52 @@ goog.ime.chrome.os.Model.prototype.revert = function() {
  * @param {string=} opt_commit The committed text if it causes a full commit.
  *     Or empty string if this is not a full commit.
  */
-goog.ime.chrome.os.Model.prototype.selectCandidate = function(
+goog.ime.chrome.os.Model.prototype.selectCandidate = function (
     opt_index, opt_commit) {
-  if (this.status == goog.ime.chrome.os.Status.FETCHING) {
-    return;
-  }
-  this.status = goog.ime.chrome.os.Status.FETCHING;
-  if (opt_index == -1) {
-    // commits the current source text.
-    this.notifyUpdates(true);
-    this.clear();
-    return;
-  }
+    if (this.status == goog.ime.chrome.os.Status.FETCHING) {
+        return;
+    }
+    this.status = goog.ime.chrome.os.Status.FETCHING;
+    if (opt_index == -1) {
+        // commits the current source text.
+        this.notifyUpdates(true);
+        this.clear();
+        return;
+    }
 
-  var index = opt_index ? opt_index : this.highlightIndex;
-  var candidate = this.candidates[index];
+    let index = opt_index ? opt_index : this.highlightIndex;
+    let candidate = this.candidates[index];
 
-  if (!candidate) {
-    this.notifyUpdates(true);
-    this.clear();
-    return;
-  }
+    if (!candidate) {
+        this.notifyUpdates(true);
+        this.clear();
+        return;
+    }
 
-  var source = '';
+    let source = '';
 
 
-  for (var i = 0; i < candidate.range; ++i) {
-    source += this.segments[i + this.commitPos];
-  }
-  this.tokens[this.commitPos] = source;
-  this.segments[this.commitPos] = candidate.target;
-  this.commitPos++;
-  this.segments = this.segments.slice(0, this.commitPos).concat(
-      this.segments.slice(this.commitPos - 1 + candidate.range));
+    for (let i = 0; i < candidate.range; ++i) {
+        source += this.segments[i + this.commitPos];
+    }
+    this.tokens[this.commitPos] = source;
+    this.segments[this.commitPos] = candidate.target;
+    this.commitPos++;
+    this.segments = this.segments.slice(0, this.commitPos).concat(
+        this.segments.slice(this.commitPos - 1 + candidate.range));
 
-  if (this.commitPos == this.segments.length || opt_commit != undefined) {
-    console.log('save',this.tokens.join(''), this.segments.join(''))
-    this.decoder_.addUserCommits(this.tokens.join(''), this.segments.join(''));
-    this.notifyUpdates(true);
-    this.clear();
-    return;
-  }
+    if (this.commitPos == this.segments.length || opt_commit != undefined) {
+        console.log('save', this.tokens.join(''), this.segments.join(''))
+        this.decoder_.addUserCommits(this.tokens.join(''), this.segments.join(''));
+        this.notifyUpdates(true);
+        this.clear();
+        return;
+    }
 
-  this.highlightIndex = -1;
-  this.source = this.segments.slice(this.commitPos, this.cursorPos).join('');
-  this.decoder_.clear();
-  this.fetchCandidates_();
+    this.highlightIndex = -1;
+    this.source = this.segments.slice(this.commitPos, this.cursorPos).join('');
+    this.decoder_.clear();
+    this.fetchCandidates_();
 };
 
 
@@ -524,48 +538,48 @@ goog.ime.chrome.os.Model.prototype.selectCandidate = function(
  * could change to shuangpin,like flypy parser
  * @private
  */
-goog.ime.chrome.os.Model.prototype.fetchCandidates_ = function() {
-  if (!this.decoder_ || !this.decoder_.isReady()) {
-    return;
-  }
-  this.status = goog.ime.chrome.os.Status.FETCHING;
-  var ret = this.decoder_.decode(
-      this.source, this.configFactory.getCurrentConfig().requestNum,this.parser_);
-  if (!ret) {
+goog.ime.chrome.os.Model.prototype.fetchCandidates_ = function () {
+    if (!this.decoder_ || !this.decoder_.isReady()) {
+        return;
+    }
+    this.status = goog.ime.chrome.os.Status.FETCHING;
+    var ret = this.decoder_.decode(
+        this.source, this.configFactory.getCurrentConfig().requestNum, this.parser_);
+    if (!ret) {
+        this.status = goog.ime.chrome.os.Status.FETCHED;
+        if (this.configFactory.getCurrentConfig().autoHighlight ||
+            this.holdSelectStatus_) {
+            this.enterSelectInternal();
+        }
+        this.candidates = [];
+        this.notifyUpdates();
+        return;
+    }
+    var candidates = ret.candidates;
+    var tokens = ret.tokens;
+
+    var committedSegments = this.segments.slice(0, this.commitPos);
+    var prefixSegments = committedSegments.concat(tokens);
+    var suffixSegments = this.segments.slice(this.cursorPos);
+
+    this.source = tokens.join('');
+    this.segments = prefixSegments.concat(suffixSegments);
+    this.cursorPos = prefixSegments.length;
+
+    this.candidates = [];
+    for (var i = 0; i < candidates.length; i++) {
+        this.candidates.push(
+            new goog.ime.chrome.os.Candidate(
+                candidates[i].target.toString(), Number(candidates[i].range)));
+    }
+
+    // Do not change goog.ime.chrome.os.Status.SELECT
     this.status = goog.ime.chrome.os.Status.FETCHED;
     if (this.configFactory.getCurrentConfig().autoHighlight ||
         this.holdSelectStatus_) {
-      this.enterSelectInternal();
+        this.enterSelectInternal();
     }
-    this.candidates = [];
     this.notifyUpdates();
-    return;
-  }
-  var candidates = ret.candidates;
-  var tokens = ret.tokens;
-
-  var committedSegments = this.segments.slice(0, this.commitPos);
-  var prefixSegments = committedSegments.concat(tokens);
-  var suffixSegments = this.segments.slice(this.cursorPos);
-
-  this.source = tokens.join('');
-  this.segments = prefixSegments.concat(suffixSegments);
-  this.cursorPos = prefixSegments.length;
-
-  this.candidates = [];
-  for (var i = 0; i < candidates.length; i++) {
-    this.candidates.push(
-        new goog.ime.chrome.os.Candidate(
-            candidates[i].target.toString(), Number(candidates[i].range)));
-  }
-
-  // Do not change goog.ime.chrome.os.Status.SELECT
-  this.status = goog.ime.chrome.os.Status.FETCHED;
-  if (this.configFactory.getCurrentConfig().autoHighlight ||
-      this.holdSelectStatus_) {
-    this.enterSelectInternal();
-  }
-  this.notifyUpdates();
 };
 
 
@@ -574,7 +588,7 @@ goog.ime.chrome.os.Model.prototype.fetchCandidates_ = function() {
  *
  * @private
  */
-goog.ime.chrome.os.Model.prototype.notifyDataReady_ = function() {
-  this.ready = true;
-  console.log('model data is ready.')
+goog.ime.chrome.os.Model.prototype.notifyDataReady_ = function () {
+    this.ready = true;
+    console.log('model data is ready.')
 };

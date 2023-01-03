@@ -21,7 +21,6 @@ goog.require('goog.ime.chrome.os.LocalStorageHandler');
 goog.require('goog.ime.offline.InputToolCode');
 
 
-
 /**
  * The local storage handler, which gets and sets key-value pairs to local
  * storage for pinyin input method.
@@ -29,44 +28,44 @@ goog.require('goog.ime.offline.InputToolCode');
  * @constructor
  * @extends {goog.ime.chrome.os.LocalStorageHandler}
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler = function() {
-  /**
-   * The default fuzzy expansion pairs for pinyin.
-   *
-   * @type {!Object.<string, boolean>}
-   * @private
-   */
-  this.fuzzyPinyinExpansionPairs_ = {
-    'an_ang': undefined,
-    'c_ch': undefined,
-    'en_eng': undefined,
-    'f_h': undefined,
-    'ian_iang': undefined,
-    'in_ing': undefined,
-    'k_g': undefined,
-    'l_n': undefined,
-    'r_l': undefined,
-    's_sh': undefined,
-    'uan_uang': undefined,
-    'z_zh': undefined
-  };
+goog.ime.chrome.os.PinyinLocalStorageHandler = function () {
+    /**
+     * The default fuzzy expansion pairs for pinyin.
+     *
+     * @type {!Object.<string, boolean>}
+     * @private
+     */
+    this.fuzzyPinyinExpansionPairs_ = {
+        'an_ang': undefined,
+        'c_ch': undefined,
+        'en_eng': undefined,
+        'f_h': undefined,
+        'ian_iang': undefined,
+        'in_ing': undefined,
+        'k_g': undefined,
+        'l_n': undefined,
+        'r_l': undefined,
+        's_sh': undefined,
+        'uan_uang': undefined,
+        'z_zh': undefined
+    };
 
-  /**
-   * The keys for the local storage.
-   *
-   * @enum {string}
-   * @private
-   */
-  this.keys_ = {
-    FUZZY_PINYIN_ENABLED: 'pinyin-fpe',
-    USER_DICT_ENABLED: 'pinyin-ud',
-    FUZZY_EXPANSIONS: 'pinyin-fe',
-    TOP_PAGE: 'pinyin-tp',
-    BOTTOM_PAGE: 'pinyin-bp',
-    INIT_LANG: 'pinyin-il',
-    INIT_SBC: 'pinyin-is',
-    INIT_PUNC: 'pinyin-ip'
-  };
+    /**
+     * The keys for the local storage.
+     *
+     * @enum {string}
+     * @private
+     */
+    this.keys_ = {
+        FUZZY_PINYIN_ENABLED: 'pinyin-fpe',
+        USER_DICT_ENABLED: 'pinyin-ud',
+        FUZZY_EXPANSIONS: 'pinyin-fe',
+        TOP_PAGE: 'pinyin-tp',
+        BOTTOM_PAGE: 'pinyin-bp',
+        INIT_LANG: 'pinyin-il',
+        INIT_SBC: 'pinyin-is',
+        INIT_PUNC: 'pinyin-ip'
+    };
 };
 goog.inherits(goog.ime.chrome.os.PinyinLocalStorageHandler,
     goog.ime.chrome.os.LocalStorageHandler);
@@ -77,22 +76,45 @@ goog.inherits(goog.ime.chrome.os.PinyinLocalStorageHandler,
  *
  * @return {boolean} True if it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getFuzzyPinyinEnabled = function() {
-  var key = this.keys_.FUZZY_PINYIN_ENABLED;
-  return !!this.getLocalStorageItem(key, false);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getFuzzyPinyinEnabled = function () {
+    var key = this.keys_.FUZZY_PINYIN_ENABLED;
+    return !!this.getLocalStorageItem(key, false);
 };
-
-
+/**
+ * get all schemas
+ * @returns {string[]}
+ */
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getSchemas = function () {
+    const schemas = []
+    for (const key in localStorage) {
+        if (key.startsWith('schema_')) {
+            schemas.push(key.replace('schema_', ''))
+        }
+    }
+    return schemas
+}
+/**
+ *
+ * @returns {string}
+ */
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getCurrentSchema = function () {
+    return localStorage.getItem('config_current_schema') || '小鹤双拼'
+}
+/**
+ *
+ * @param schema
+ */
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setCurrentSchema = function (schema) {
+    return localStorage.setItem('config_current_schema',schema)
+}
 /**
  * Whether the user dictioanry is enabled.
  *
  * @return {boolean} True if it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getUserDictEnabled = function() {
-  var key = this.keys_.USER_DICT_ENABLED;
-  return !!this.getLocalStorageItem(key, true);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getUserDictEnabled = function () {
+    var key = this.keys_.USER_DICT_ENABLED;
+    return !!this.getLocalStorageItem(key, true);
 };
 
 
@@ -103,11 +125,10 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @return {Object.<string, boolean>} The fuzzy expansions.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getFuzzyExpansions = function() {
-  var key = this.keys_.FUZZY_EXPANSIONS;
-  return /** @type {Object.<string, boolean>} */ (this.getLocalStorageItem(
-      key, this.fuzzyPinyinExpansionPairs_));
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getFuzzyExpansions = function () {
+    var key = this.keys_.FUZZY_EXPANSIONS;
+    return /** @type {Object.<string, boolean>} */ (this.getLocalStorageItem(
+        key, this.fuzzyPinyinExpansionPairs_));
 };
 
 
@@ -116,10 +137,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @return {boolean} True if it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getTopPageEnabled = function() {
-  var key = this.keys_.TOP_PAGE;
-  return !!this.getLocalStorageItem(key, true);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getTopPageEnabled = function () {
+    var key = this.keys_.TOP_PAGE;
+    return !!this.getLocalStorageItem(key, true);
 };
 
 
@@ -128,10 +148,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @return {boolean} True if it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getBottomPageEnabled = function() {
-  var key = this.keys_.BOTTOM_PAGE;
-  return !!this.getLocalStorageItem(key, true);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getBottomPageEnabled = function () {
+    var key = this.keys_.BOTTOM_PAGE;
+    return !!this.getLocalStorageItem(key, true);
 };
 
 
@@ -140,10 +159,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @return {boolean} True if it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getInitLang = function() {
-  var key = this.keys_.INIT_LANG;
-  return !!this.getLocalStorageItem(key, true);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getInitLang = function () {
+    var key = this.keys_.INIT_LANG;
+    return !!this.getLocalStorageItem(key, true);
 };
 
 
@@ -152,10 +170,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @return {boolean} True if it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getInitSBC = function() {
-  var key = this.keys_.INIT_SBC;
-  return !!this.getLocalStorageItem(key, false);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getInitSBC = function () {
+    var key = this.keys_.INIT_SBC;
+    return !!this.getLocalStorageItem(key, false);
 };
 
 
@@ -164,10 +181,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @return {boolean} True if it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    getInitPunc = function() {
-  var key = this.keys_.INIT_PUNC;
-  return !!this.getLocalStorageItem(key, true);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.getInitPunc = function () {
+    var key = this.keys_.INIT_PUNC;
+    return !!this.getLocalStorageItem(key, true);
 };
 
 
@@ -176,10 +192,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {boolean} value Whether it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setFuzzyPinyinEnabled = function(value) {
-  var key = this.keys_.FUZZY_PINYIN_ENABLED;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setFuzzyPinyinEnabled = function (value) {
+    var key = this.keys_.FUZZY_PINYIN_ENABLED;
+    this.setLocalStorageItem(key, value);
 };
 
 
@@ -188,10 +203,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {boolean} value Whether it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setUserDictEnabled = function(value) {
-  var key = this.keys_.USER_DICT_ENABLED;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setUserDictEnabled = function (value) {
+    var key = this.keys_.USER_DICT_ENABLED;
+    this.setLocalStorageItem(key, value);
 };
 
 
@@ -202,10 +216,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {Object.<string, boolean>} value The fuzzy pinyin expansions.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setFuzzyExpansions = function(value) {
-  var key = this.keys_.FUZZY_EXPANSIONS;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setFuzzyExpansions = function (value) {
+    var key = this.keys_.FUZZY_EXPANSIONS;
+    this.setLocalStorageItem(key, value);
 };
 
 
@@ -214,10 +227,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {boolean} value Whether it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setTopPageEnabled = function(value) {
-  var key = this.keys_.TOP_PAGE;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setTopPageEnabled = function (value) {
+    var key = this.keys_.TOP_PAGE;
+    this.setLocalStorageItem(key, value);
 };
 
 
@@ -226,10 +238,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {boolean} value Whether it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setBottomPageEnabled = function(value) {
-  var key = this.keys_.BOTTOM_PAGE;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setBottomPageEnabled = function (value) {
+    var key = this.keys_.BOTTOM_PAGE;
+    this.setLocalStorageItem(key, value);
 };
 
 
@@ -238,10 +249,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {boolean} value Whether it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setInitLang = function(value) {
-  var key = this.keys_.INIT_LANG;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setInitLang = function (value) {
+    var key = this.keys_.INIT_LANG;
+    this.setLocalStorageItem(key, value);
 };
 
 
@@ -250,10 +260,9 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {boolean} value Whether it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setInitSBC = function(value) {
-  var key = this.keys_.INIT_SBC;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setInitSBC = function (value) {
+    var key = this.keys_.INIT_SBC;
+    this.setLocalStorageItem(key, value);
 };
 
 
@@ -262,42 +271,44 @@ goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
  *
  * @param {boolean} value Whether it is enabled.
  */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    setInitPunc = function(value) {
-  var key = this.keys_.INIT_PUNC;
-  this.setLocalStorageItem(key, value);
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.setInitPunc = function (value) {
+    var key = this.keys_.INIT_PUNC;
+    this.setLocalStorageItem(key, value);
 };
 
 
 /** @override */
-goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.
-    updateControllerSettings = function(controller) {
-  var inputToolCode = goog.ime.offline.InputToolCode.
-      INPUTMETHOD_PINYIN_CHINESE_SIMPLIFIED;
+goog.ime.chrome.os.PinyinLocalStorageHandler.prototype.updateControllerSettings = function (controller) {
+    var inputToolCode = goog.ime.offline.InputToolCode.INPUTMETHOD_PINYIN_CHINESE_SIMPLIFIED;
+    const schemas = this.getSchemas()
+    if (schemas.length === 0) {
+        localStorage.setItem('schema_小鹤双拼', '小鹤双拼*2*^*iuvdjhcwfg^xmlnpbksqszxkrltvyovt')
+    }
+    const currentSchema = this.getCurrentSchema()
+    controller.setParser(localStorage.getItem(`schema_${currentSchema}`) || '小鹤双拼*2*^*iuvdjhcwfg^xmlnpbksqszxkrltvyovt')
+    var fuzzyPinyinEnabled = this.getFuzzyPinyinEnabled();
+    var fuzzyExpansions = this.getFuzzyExpansions();
+    controller.setFuzzyExpansions(
+        inputToolCode, fuzzyPinyinEnabled, fuzzyExpansions);
 
-  var fuzzyPinyinEnabled = this.getFuzzyPinyinEnabled();
-  var fuzzyExpansions = this.getFuzzyExpansions();
-  controller.setFuzzyExpansions(
-      inputToolCode, fuzzyPinyinEnabled, fuzzyExpansions);
+    var userDictEnabled = this.getUserDictEnabled();
+    controller.setUserDictEnabled(inputToolCode, userDictEnabled);
 
-  var userDictEnabled = this.getUserDictEnabled();
-  controller.setUserDictEnabled(inputToolCode, userDictEnabled);
+    var pageupChars = '';
+    var pagedownChars = '';
+    if (this.getTopPageEnabled()) {
+        pageupChars += '=';
+        pagedownChars += '\\\-';
+    }
+    if (this.getBottomPageEnabled()) {
+        pageupChars += '.';
+        pagedownChars += ',';
+    }
+    controller.setPageMoveChars(inputToolCode, pageupChars, pagedownChars);
 
-  var pageupChars = '';
-  var pagedownChars = '';
-  if (this.getTopPageEnabled()) {
-    pageupChars += '=';
-    pagedownChars += '\\\-';
-  }
-  if (this.getBottomPageEnabled()) {
-    pageupChars += '.';
-    pagedownChars += ',';
-  }
-  controller.setPageMoveChars(inputToolCode, pageupChars, pagedownChars);
-
-  var initLang = this.getInitLang();
-  var initSBC = this.getInitSBC();
-  var initPunc = this.getInitPunc();
-  controller.setInputToolStates(inputToolCode, initLang, initSBC, initPunc);
+    var initLang = this.getInitLang();
+    var initSBC = this.getInitSBC();
+    var initPunc = this.getInitPunc();
+    controller.setInputToolStates(inputToolCode, initLang, initSBC, initPunc);
 };
 

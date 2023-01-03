@@ -26,5 +26,11 @@
   },
   "init_sbc": {
     "message": "Initial character width is Full"
+  },
+  "schemas": {
+    "message": "shuangpin schemas"
+  },
+  "add_custom_schema": {
+    "message": "add custom shuangpin schema"
   }
 }

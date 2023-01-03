@@ -16,7 +16,6 @@
  * @fileoverview Defines the model configs.
  */
 goog.provide('goog.ime.chrome.os.ConfigFactory');
-goog.require('goog.ime.chrome.os.FlypyParser')
 goog.require('goog.ime.chrome.os.Config');
 goog.require('goog.ime.chrome.os.PinyinConfig');
 goog.require('goog.ime.offline.InputToolCode');
@@ -39,13 +38,6 @@ goog.ime.chrome.os.ConfigFactory = function() {
    */
   this.inputToolCode_ = '';
 
-  /**
-   * The current input tool shuangpin code.
-   *
-   * @type {string}
-   * @private
-   */
-  this.shuangpinCode_ = '';
 
   /**
    * The map of input tool code to the config object.
@@ -56,13 +48,6 @@ goog.ime.chrome.os.ConfigFactory = function() {
   this.map_ = {};
 
 
-  /**
-   * The map of input tool code to the config object.
-   *
-   * @type {!Object.<string, !goog.ime.chrome.os.Parser>}
-   * @private
-   */
-  this.parsers_ = {}
 
   /**
    * The default config.
@@ -85,15 +70,6 @@ goog.ime.chrome.os.ConfigFactory.prototype.setInputTool = function(
   this.inputToolCode_ = inputToolCode;
 };
 
-/**
- * Sets the current input tool by the given input tool shuangpin code.
- *
- * @param {string} shuangpinCode The input tool shuangpin code.
- */
-goog.ime.chrome.os.ConfigFactory.prototype.setShuangpinTool = function(
-    shuangpinCode) {
-  this.shuangpinCode_ = shuangpinCode;
-};
 
 
 /**
@@ -106,14 +82,6 @@ goog.ime.chrome.os.ConfigFactory.prototype.getInputTool = function() {
 };
 
 
-/**
- * Gets the current input tool by the given input tool shuangpin code.
- *
- * @return {string} The input tool code.
- */
-goog.ime.chrome.os.ConfigFactory.prototype.getShuangpinTool = function() {
-  return this.shuangpinCode_;
-};
 
 
 /**
@@ -132,21 +100,7 @@ goog.ime.chrome.os.ConfigFactory.prototype.getConfig = function(
   }
   return null;
 };
-/**
- * Gets the config for a given shuangpin code.
- *
- * @param {!string} shuangpinCode the input tool code.
- * @return {goog.ime.chrome.os.Parser} The config.
- */
-goog.ime.chrome.os.ConfigFactory.prototype.getShuangpinParser=function (shuangpinCode){
-  if(goog.object.isEmpty(this.parsers_)){
-    this.buildParsers_();
-  }
-  if (this.parsers_[shuangpinCode]){
-    return this.parsers_[shuangpinCode];
-  }
-  return null
-}
+
 
 /**
  * Gets the config for the current input tool.
@@ -169,21 +123,6 @@ goog.ime.chrome.os.ConfigFactory.prototype.getCurrentConfig = function() {
 
 
 /**
- * Gets the config for the current input tool.
- *
- * @return {goog.ime.chrome.os.Parser} The config.
- */
-goog.ime.chrome.os.ConfigFactory.prototype.getCurrentParser = function() {
-  if (goog.object.isEmpty(this.parsers_)) {
-    this.buildParsers_();
-  }
-  const code = this.shuangpinCode_;
-  if (code && this.parsers_[code]) {
-    return this.parsers_[code];
-  }
-  return this.parsers_[goog.ime.offline.ShuangpinCode.FLYPY]
-};
-/**
  * Builds input method configs.
  *
  * @private
@@ -193,7 +132,3 @@ goog.ime.chrome.os.ConfigFactory.prototype.buildConfigs_ = function() {
   this.map_[code.INPUTMETHOD_PINYIN_CHINESE_SIMPLIFIED] = new goog.ime.chrome.os.PinyinConfig();
 };
 
-goog.ime.chrome.os.ConfigFactory.prototype.buildParsers_=function (){
-  const code= goog.ime.offline.ShuangpinCode;
-  this.parsers_[code.FLYPY] = new goog.ime.chrome.os.FlypyParser();
-}
