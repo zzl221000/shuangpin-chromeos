@@ -31,13 +31,16 @@ goog.require('goog.events.EventTarget');
 goog.require('goog.debug.ErrorHandler');
 goog.require('goog.events.EventLike');
 goog.require('goog.events.EventWrapper');
+goog.require('goog.ui.Dialog')
+goog.require('goog.ui.Dialog.ButtonSet')
+goog.require('goog.ui.Dialog.DefaultButtonKeys')
 /**
  * Creates an option page for a given input tool code.
  *
  * @constructor
  * @extends {goog.Disposable}
  */
-goog.ime.chrome.os.PinyinOption = function () {
+function PinyinOption() {
     /**
      * The event handler.
      *
@@ -60,7 +63,8 @@ goog.ime.chrome.os.PinyinOption = function () {
     this.init_();
     goog.events.listenOnce(window, goog.events.EventType.UNLOAD,
         goog.bind(this.dispose, this));
-};
+}
+goog.ime.chrome.os.PinyinOption = PinyinOption;
 goog.inherits(goog.ime.chrome.os.PinyinOption, goog.Disposable);
 
 
@@ -103,6 +107,44 @@ goog.ime.chrome.os.PinyinOption.ItemLabels_ = {
     INIT_PUNC: chrome.i18n.getMessage('init_punc')
 };
 
+goog.ime.chrome.os.PinyinOption.CustomSchema_ = {
+    MODE_NAMES: ['固定零声母', '韵母的第一个声母', '韵母的第一个声母（两个字母的韵母为全拼）'],
+    INITIAL_KEYS: Array.from(';AEIOUV'),//Array.from(';ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    FINALS_KEYS: Array.from(';ABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+    SYLLABLES: ['ch',
+        'sh',
+        'zh',
+        'ai',
+        'an',
+        'ang',
+        'ao',
+        'ei',
+        'en',
+        'eng',
+        'er',
+        'ia',
+        'ian',
+        'iang',
+        'iao',
+        'ie',
+        'in',
+        'ing',
+        'iong',
+        'iu',
+        'ong',
+        'ou',
+        'ua',
+        'uai',
+        'uan',
+        'uang',
+        'ue',
+        'ui',
+        'un',
+        'uo',
+        'v',
+        've',
+    ]
+}
 
 /**
  * The CSS class names.
@@ -193,6 +235,10 @@ goog.ime.chrome.os.PinyinOption.prototype.init_ = function () {
     const currentSchema = this.localStorageHandler_.getCurrentSchema();
     const schemasItem = this.createSchemasDiv_(OPTION.ItemIDs_.SCHEMAS, OPTION.ItemLabels_.SCHEMAS, schemas, currentSchema)
     const addCustomSchema = this.createAddCustomSchema_(OPTION.ItemIDs_.ADD_CUSTOM_SCHEMA, OPTION.ItemLabels_.ADD_CUSTOM_SCHEMA)
+    const dialogLabel=goog.dom.createDom(goog.dom.TagName.LABEL)
+    dialogLabel.appendChild(goog.dom.createTextNode('交互模式添加双拼方案: '))
+    selectionDiv.appendChild(dialogLabel)
+    selectionDiv.appendChild(this.createAddSchemaDialog_(OPTION.CustomSchema_.MODE_NAMES, OPTION.CustomSchema_.INITIAL_KEYS, OPTION.CustomSchema_.FINALS_KEYS, OPTION.CustomSchema_.SYLLABLES))
     selectionDiv.appendChild(addCustomSchema)
     selectionDiv.appendChild(schemasItem);
     selectionDiv.appendChild(fuzzyPinyinItem);
@@ -242,7 +288,162 @@ goog.ime.chrome.os.PinyinOption.prototype.createSchemasDiv_ = function (id, labe
         goog.bind(this.saveSettings, this));
     return selectDiv
 }
+goog.ime.chrome.os.PinyinOption.prototype.createAddSchemaDialog_ = function (mode_names, initial_keys, finals_keys, syllables) {
+    const button = goog.dom.createDom(goog.dom.TagName.BUTTON)
+    button.appendChild(goog.dom.createTextNode('添加自定义双拼'))
+    const dlg = new goog.ui.Dialog()
+    dlg.setTitle('添加自定义双拼')
 
+
+    // const okButton=bts.getButton(bts.getDefault())
+    const dlgContent = dlg.getContentElement()
+    const nameDiv = goog.dom.createDom(goog.dom.TagName.DIV)
+    const nameInput = goog.dom.createDom(goog.dom.TagName.INPUT, {
+        'type': 'text',
+        'id': 'gld-name',
+        'name': 'gld-name',
+    })
+    const nameLabel = goog.dom.createDom(goog.dom.TagName.LABEL, {
+        'for': 'gld-name'
+    })
+    nameLabel.appendChild(goog.dom.createTextNode('方案名称: '))
+    nameDiv.appendChild(nameLabel)
+    nameDiv.appendChild(nameInput)
+    dlgContent.appendChild(nameDiv)
+    const modeDiv = goog.dom.createDom(goog.dom.TagName.DIV)
+    const modeSelect = goog.dom.createDom(goog.dom.TagName.SELECT, {id: 'gld-mode'})
+    for (let i = 0; i < 3; i++) {
+        const opt = goog.dom.createDom(goog.dom.TagName.OPTION, {
+            value: i
+        })
+        opt.appendChild(goog.dom.createTextNode(mode_names[i]))
+        modeSelect.appendChild(opt)
+    }
+    const modeLabel = goog.dom.createDom(goog.dom.TagName.LABEL, {
+        'for': 'gld-mode'
+    })
+    modeLabel.appendChild(goog.dom.createTextNode('零声母模式: '))
+    modeDiv.appendChild(modeLabel)
+    modeDiv.appendChild(modeSelect)
+    dlgContent.appendChild(modeDiv)
+    const zeroInitialDiv = goog.dom.createDom(goog.dom.TagName.DIV)
+    const zeroInitialSelect = goog.dom.createDom(goog.dom.TagName.SELECT, {id: 'gld-zero-initial'})
+    const zeroInitialLabel = goog.dom.createDom(goog.dom.TagName.LABEL, {
+        'for': 'gld-zero-initial'
+    })
+    zeroInitialLabel.appendChild(goog.dom.createTextNode('零声母: '))
+    const nonZeroInitialOpt = goog.dom.createDom(goog.dom.TagName.OPTION, {
+        value: '^'
+    })
+    nonZeroInitialOpt.appendChild(goog.dom.createTextNode('（无）'))
+    zeroInitialSelect.appendChild(nonZeroInitialOpt)
+    initial_keys.forEach((k) => {
+        const ziopt = goog.dom.createDom(goog.dom.TagName.OPTION, {
+            value: k
+        })
+        ziopt.appendChild(goog.dom.createTextNode(k))
+        zeroInitialSelect.appendChild(ziopt)
+    })
+    zeroInitialDiv.appendChild(zeroInitialLabel)
+    zeroInitialDiv.appendChild(zeroInitialSelect)
+    dlgContent.appendChild(zeroInitialDiv)
+    let tmpMapping = {}
+    const syllablesDiv = goog.dom.createDom(goog.dom.TagName.DIV)
+    const syllablesSelect = goog.dom.createDom(goog.dom.TagName.SELECT, {id: 'gld-syllables'})
+    const syllablesLabel = goog.dom.createDom(goog.dom.TagName.LABEL, {
+        'for': 'gld-syllables'
+    })
+    syllablesLabel.appendChild(goog.dom.createTextNode('自定义按键: 音节 '))
+
+    const keysSelect = goog.dom.createDom(goog.dom.TagName.SELECT, {id: 'gld-keys'})
+    const keysLabel = goog.dom.createDom(goog.dom.TagName.LABEL, {
+        'for': 'gld-keys'
+    })
+    keysLabel.appendChild(goog.dom.createTextNode('→ 按键 '))
+    const nonSyllableOpt = goog.dom.createDom(goog.dom.TagName.OPTION, {
+        value: '^'
+    })
+    nonSyllableOpt.appendChild(goog.dom.createTextNode('-'))
+    syllablesSelect.appendChild(nonSyllableOpt)
+    syllables.forEach(e => {
+        const opt = goog.dom.createDom(goog.dom.TagName.OPTION, {
+            value: e
+        })
+        opt.appendChild(goog.dom.createTextNode(e))
+        syllablesSelect.appendChild(opt)
+    })
+    goog.events.listen(syllablesSelect, goog.events.EventType.CHANGE, e => {
+        console.log('syllablesSelect changed')
+        const value = e.target.value
+
+        keysSelect.innerHTML=''
+        const opt = goog.dom.createDom(goog.dom.TagName.OPTION, {value: '^'})
+        opt.appendChild(goog.dom.createTextNode('-'))
+        keysSelect.appendChild(opt)
+        if (value === '^') {
+            return
+        }
+
+        const loop_keys = value === 'sh' || value === 'ch' || value === 'zh' ? initial_keys : finals_keys
+
+        loop_keys.forEach(k => {
+            const opt = goog.dom.createDom(goog.dom.TagName.OPTION, {value: k})
+            opt.appendChild(goog.dom.createTextNode(k))
+            keysSelect.appendChild(opt)
+        })
+    })
+    const showMapping=goog.dom.createDom(goog.dom.TagName.DIV)
+
+    goog.events.listen(keysSelect, goog.events.EventType.CHANGE, e => {
+        const syllable = syllablesSelect.value
+        if (syllable === '^') return;
+        tmpMapping[syllable] = e.target.value
+        showMapping.innerHTML=syllables.map(s => {
+            const k = tmpMapping[s] || '^'
+            return `${s}->${k}`
+        }).join("; ")
+    })
+    syllablesDiv.appendChild(syllablesLabel)
+    syllablesDiv.appendChild(syllablesSelect)
+    syllablesDiv.appendChild(keysLabel)
+    syllablesDiv.appendChild(keysSelect)
+    dlgContent.appendChild(syllablesDiv)
+    dlgContent.appendChild(showMapping)
+    goog.events.listen(button, goog.events.EventType.CLICK, e => {
+        dlg.setVisible(true)
+        const okButton=dlg.getButtonSet().getButton('ok')
+        goog.events.listen(okButton,goog.events.EventType.CLICK,e2=>{
+            e2.preventDefault()
+            e2.stopPropagation()
+            const name=nameInput.value
+            const mode=modeSelect.value
+            const zeroInitial=zeroInitialSelect.value
+            const keymapping=syllables.map(s=>tmpMapping[s]||'^').map(s=>s.toLowerCase()).join('')
+            if (!name) {
+                console.log('方案名称为空')
+                return
+            }
+
+            if (mode==='0' && (!zeroInitial||zeroInitial==='^')){
+                console.log('固定声母模式需要选择声母')
+                return;
+            }
+            if (localStorage){
+                localStorage.setItem(`schema_${name}`,[name,mode,zeroInitial,keymapping].join('*'))
+                console.log('保存成功');
+            }
+            nameInput.value=''
+            modeSelect.value=0
+            zeroInitialSelect.value='^'
+            tmpMapping={}
+            dlg.setVisible(false)
+
+        })
+    })
+    return button
+
+
+}
 goog.ime.chrome.os.PinyinOption.prototype.createAddCustomSchema_ = function (id, label) {
     const input = goog.dom.createDom('input', {
         'type': 'text',
@@ -406,8 +607,7 @@ goog.ime.chrome.os.PinyinOption.prototype.saveSettings = function () {
     var initPuncEnabled = goog.dom.getElement(ItemIDs_.INIT_PUNC).checked;
     this.localStorageHandler_.setInitPunc(initPuncEnabled);
     const schemas = goog.dom.getElement(ItemIDs_.SCHEMAS)
-    const idx = schemas.selectedIndex
-    const schema = schemas[idx].value
+    const schema = schemas.value
     this.localStorageHandler_.setCurrentSchema(schema)
     if (fuzzyPinyinEnabled) {
         var fuzzyExpansions = this.localStorageHandler_.getFuzzyExpansions();
@@ -424,13 +624,13 @@ goog.ime.chrome.os.PinyinOption.prototype.saveSettings = function () {
         goog.ime.offline.InputToolCode.INPUTMETHOD_PINYIN_CHINESE_SIMPLIFIED));
 };
 
-function disposeInternal() {
-    goog.dispose(this.eventHandler_);
-    disposeInternal.base(this, 'disposeInternal');
-}
+
 
 /** @override */
-goog.ime.chrome.os.PinyinOption.prototype.disposeInternal = disposeInternal;
+goog.ime.chrome.os.PinyinOption.prototype.disposeInternal = function (){
+    goog.dispose(this.eventHandler_);
+    PinyinOption.base(this, 'disposeInternal');
+};
 
 
 (function () {

@@ -1,7 +1,7 @@
 
 {
   "name": "Chrome OS IME (Shuangpin)",
-  "version": "1.0.0.0",
+  "version": "1.0.1.0",
   "default_locale": "en",
   "permissions": [
     "http://*/",
