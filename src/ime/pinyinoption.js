@@ -72,7 +72,7 @@ goog.inherits(goog.ime.chrome.os.PinyinOption, goog.Disposable);
  */
 goog.ime.chrome.os.PinyinOption.ItemIDs_ = {
     SCHEMAS: 'chos_schemas',
-    ADD_CUSTOM_SCHEMA:'chos-add_custom_schema',
+    ADD_CUSTOM_SCHEMA: 'chos-add_custom_schema',
     FUZZY_PINYIN: 'chos_fuzzy_pinyin_selection',
     USER_DICT: 'chos_user_dict_selection',
     TOP_PAGE: 'chos_top_page_selection',
@@ -93,7 +93,7 @@ goog.ime.chrome.os.PinyinOption.ItemIDs_ = {
 goog.ime.chrome.os.PinyinOption.ItemLabels_ = {
     TITLE: chrome.i18n.getMessage('pinyin_setting_page'),
     SCHEMAS: chrome.i18n.getMessage('schemas'),
-    ADD_CUSTOM_SCHEMA:chrome.i18n.getMessage('add_custom_schema'),
+    ADD_CUSTOM_SCHEMA: chrome.i18n.getMessage('add_custom_schema'),
     FUZZY_PINYIN: chrome.i18n.getMessage('fuzzy_pinyin'),
     USER_DICT: chrome.i18n.getMessage('user_dict'),
     TOP_PAGE: chrome.i18n.getMessage('move_page_key_above'),
@@ -113,7 +113,7 @@ goog.ime.chrome.os.PinyinOption.ItemLabels_ = {
 goog.ime.chrome.os.PinyinOption.ClassNames_ = {
     MAIN: 'chos-main',
     SCHEMAS: 'chos-schemas',
-    ADD_CUSTOM_SCHEMA:'chos-add-custom-schema-div',
+    ADD_CUSTOM_SCHEMA: 'chos-add-custom-schema-div',
     TITLE: 'chos-title',
     SELECTS: 'chos-select-div',
     SELECT_ITEM: 'chos-select-item',
@@ -192,7 +192,7 @@ goog.ime.chrome.os.PinyinOption.prototype.init_ = function () {
     const schemas = this.localStorageHandler_.getSchemas();
     const currentSchema = this.localStorageHandler_.getCurrentSchema();
     const schemasItem = this.createSchemasDiv_(OPTION.ItemIDs_.SCHEMAS, OPTION.ItemLabels_.SCHEMAS, schemas, currentSchema)
-    const addCustomSchema=this.createAddCustomSchema_(OPTION.ItemIDs_.ADD_CUSTOM_SCHEMA,OPTION.ItemLabels_.ADD_CUSTOM_SCHEMA)
+    const addCustomSchema = this.createAddCustomSchema_(OPTION.ItemIDs_.ADD_CUSTOM_SCHEMA, OPTION.ItemLabels_.ADD_CUSTOM_SCHEMA)
     selectionDiv.appendChild(addCustomSchema)
     selectionDiv.appendChild(schemasItem);
     selectionDiv.appendChild(fuzzyPinyinItem);
@@ -232,7 +232,7 @@ goog.ime.chrome.os.PinyinOption.prototype.createSchemasDiv_ = function (id, labe
     const labelNode = goog.dom.createDom('label', {
         'for': id
     });
-    labelNode.appendChild(goog.dom.createTextNode(label+": "));
+    labelNode.appendChild(goog.dom.createTextNode(label + ": "));
     const selectDiv = goog.dom.createDom(goog.dom.TagName.DIV, {
         'class': goog.ime.chrome.os.PinyinOption.ClassNames_.SELECT_ITEM
     });
@@ -243,34 +243,34 @@ goog.ime.chrome.os.PinyinOption.prototype.createSchemasDiv_ = function (id, labe
     return selectDiv
 }
 
-goog.ime.chrome.os.PinyinOption.prototype.createAddCustomSchema_=function (id,label){
-    const input=goog.dom.createDom('input',{
+goog.ime.chrome.os.PinyinOption.prototype.createAddCustomSchema_ = function (id, label) {
+    const input = goog.dom.createDom('input', {
         'type': 'text',
         'id': id,
-        'name':id,
+        'name': id,
     })
     const labelNode = goog.dom.createDom('label', {
         'for': id
     });
-    labelNode.appendChild(goog.dom.createTextNode(label+': '));
+    labelNode.appendChild(goog.dom.createTextNode(label + ': '));
     const inputDiv = goog.dom.createDom(goog.dom.TagName.DIV, {
         'class': goog.ime.chrome.os.PinyinOption.ClassNames_.SELECT_ITEM
     });
     inputDiv.appendChild(labelNode)
     inputDiv.appendChild(input)
-    const button=goog.dom.createDom('button')
+    const button = goog.dom.createDom('button')
     goog.events.listen(
-        input,
-        'click',
-        e=>{
-            const [name, mode, zeroInitial, keymapping]=input.value.split('*')
-            if (keymapping.length!==32){
+        button,
+        goog.events.EventType.CLICK,
+        e => {
+            const [name, mode, zeroInitial, keymapping] = input.value.split('*')
+            if (keymapping && keymapping.length !== 32) {
                 return
             }
-            if (mode===0 && (!zeroInitial||zeroInitial==='^')){
+            if (mode === '0' && (!zeroInitial || zeroInitial === '^')) {
                 return;
             }
-            localStorage.setItem(`schema_${name}`,input.value)
+            localStorage.setItem(`schema_${name}`, input.value)
         }
     );
     button.appendChild(goog.dom.createTextNode('添加'))
@@ -405,9 +405,9 @@ goog.ime.chrome.os.PinyinOption.prototype.saveSettings = function () {
 
     var initPuncEnabled = goog.dom.getElement(ItemIDs_.INIT_PUNC).checked;
     this.localStorageHandler_.setInitPunc(initPuncEnabled);
-    const schemas=goog.dom.getElement(ItemIDs_.SCHEMAS)
-    const idx=schemas.selectedIndex
-    const schema=schemas[idx].value
+    const schemas = goog.dom.getElement(ItemIDs_.SCHEMAS)
+    const idx = schemas.selectedIndex
+    const schema = schemas[idx].value
     this.localStorageHandler_.setCurrentSchema(schema)
     if (fuzzyPinyinEnabled) {
         var fuzzyExpansions = this.localStorageHandler_.getFuzzyExpansions();
