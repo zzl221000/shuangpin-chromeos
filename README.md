@@ -11,6 +11,9 @@
 chrome打开`开发人员模式`，
 从[release](https://github.com/zzl221000/shuangpin-chromeos/releases)下载编译好的扩展，解压后，在扩展页面`加载解压缩的扩展`，
 在输入法设置中添加`双拼输入法`。
+
+## 配置
+![extension config](/docs/screenshots.gif)
 ## 编译
 ```shell
 # 安装依赖
