@@ -66,13 +66,7 @@ goog.ime.chrome.os.View.prototype.inputToolCode_ = '';
 
 
 
-/**
- * The current input tool.
- *
- * @type {string}
- * @private
- */
-goog.ime.chrome.os.View.prototype.shuangpinCode_ = '';
+
 
 
 /**
@@ -90,7 +84,7 @@ goog.ime.chrome.os.View.prototype.setContext = function(context) {
  */
 goog.ime.chrome.os.View.prototype.updateInputTool = function() {
   this.inputToolCode_ = this.configFactory.getInputTool();
-  this.shuangpinCode_=this.configFactory.getShuangpinTool();
+
   this.updateItems();
 };
 

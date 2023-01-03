@@ -27,40 +27,12 @@ goog.addDependency('F:/project/frontend/chromeos-ime-shuangpin/src/ime/pinyinopt
 goog.addDependency('F:/project/frontend/chromeos-ime-shuangpin/src/ime/shuangpin/flypy.js', [], [], {'lang': 'es6'});
 goog.addDependency('F:/project/frontend/chromeos-ime-shuangpin/src/ime/state.js', ['goog.ime.chrome.os.State'], []);
 goog.addDependency('F:/project/frontend/chromeos-ime-shuangpin/src/ime/view.js', ['goog.ime.chrome.os.View'], ['goog.ime.chrome.os.ConfigFactory']);
-require('../public/data')
-var LocalStorage = require('node-localstorage').LocalStorage;
-localStorage = new LocalStorage('./scratch');
-chrome={i18n:{
-    getMessage:name=>name
-    }}
-goog.require('goog.ime.chrome.os.Model')
-goog.require('goog.storage.mechanism.HTML5LocalStorage')
-window=global
-const model=new goog.ime.chrome.os.Model
 
-function selectChar(e) {
-    var selectKeys = model.configFactory.getCurrentConfig().selectKeys;
-    var pageOffset = selectKeys.indexOf(e);
-    if (pageOffset < 0) {
-        return true;
-    }
-    var pageSize = model.configFactory.getCurrentConfig().pageSize;
-    if (pageOffset >= 0 && pageOffset < pageSize) {
-        var index = model.getPageIndex() * pageSize + pageOffset;
-        model.selectCandidate(index);
-    }
-}
-model.configFactory.setInputTool('zh-t-i0-pinyin');
+goog.require('goog.ime.chrome.os.Parser')
 
-model.setInputTool('zh-t-i0-pinyin');
-// model.setParser(null)
-Array.from('ul').forEach(c=> model.updateSource(c))
-// model.moveCursorLeft()
-// model.moveCursorLeft()
-// model.revert()
-// model.revert()
-// model.revert()
-model.selectCandidate(0)
-Array.from('ulpb').forEach(c=> model.updateSource(c))
-model.selectCandidate(0)
-console.log(model)
+const parser=new goog.ime.chrome.os.Parser
+
+parser.config('小鹤双拼*2*^*iuvdjhcwfg^xmlnpbksqszxkrltvyovt')
+
+console.log(parser.parse('erziulp'));
+console.log(parser.parse('ckiqvptqvptqvpt'));

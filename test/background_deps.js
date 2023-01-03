@@ -16,7 +16,6 @@ goog.addDependency('../../../../src/ime/decoder/mldecoder.js', ['goog.ime.offlin
 goog.addDependency('../../../../src/ime/decoder/shuangpincode.js', ['goog.ime.offline.ShuangpinCode'], []);
 goog.addDependency('../../../../src/ime/decoder/tokendecoder.js', ['goog.ime.offline.LatticeNode', 'goog.ime.offline.TokenDecoder', 'goog.ime.offline.TokenPath'], ['goog.array', 'goog.events.EventTarget', 'goog.ime.offline.DataLoader', 'goog.ime.offline.EventType']);
 goog.addDependency('../../../../src/ime/decoder/userdecoder.js', ['goog.ime.offline.UserDecoder'], ['goog.ime.offline.Heap', 'goog.object']);
-goog.addDependency('../../../../src/ime/flypyparser.js', ['goog.ime.chrome.os.FlypyParser'], ['goog.ime.chrome.os.Parser'], {'lang': 'es6'});
 goog.addDependency('../../../../src/ime/localstoragehandler.js', ['goog.ime.chrome.os.LocalStorageHandler'], []);
 goog.addDependency('../../../../src/ime/localstoragehandlerfactory.js', ['goog.ime.chrome.os.LocalStorageHandlerFactory'], ['goog.ime.chrome.os.PinyinLocalStorageHandler', 'goog.ime.offline.InputToolCode', 'goog.object']);
 goog.addDependency('../../../../src/ime/model.js', ['goog.ime.chrome.os.Model'], ['goog.events.EventTarget', 'goog.ime.chrome.os.Candidate', 'goog.ime.chrome.os.ConfigFactory', 'goog.ime.chrome.os.EventType', 'goog.ime.chrome.os.Status', 'goog.ime.offline.Decoder']);

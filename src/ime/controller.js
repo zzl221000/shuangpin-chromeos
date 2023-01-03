@@ -123,11 +123,10 @@ goog.ime.chrome.os.Controller.prototype.lastKeyDownIsShift_ = false;
  * Activates an input tool.
  *
  * @param {!string} inputToolCode The input tool.
- * @param {!string} shuangpinCode The input tool.
  */
-goog.ime.chrome.os.Controller.prototype.activate = function(inputToolCode,shuangpinCode='flypy') {
+goog.ime.chrome.os.Controller.prototype.activate = function(inputToolCode) {
+
   this.configFactory.setInputTool(inputToolCode);
-  this.configFactory.setShuangpinTool(shuangpinCode)
   this.model.setInputTool(inputToolCode);
   this.view.updateInputTool();
   this.keyActionTable_ = this.getKeyActionTable();
@@ -196,8 +195,14 @@ goog.ime.chrome.os.Controller.prototype.setFuzzyExpansions = function(
   }
   this.model.setFuzzyExpansions(inputToolCode, enabledFuzzyExpansions);
 };
-
-
+/**
+ *
+ * @param {string} configuration
+ */
+goog.ime.chrome.os.Controller.prototype.setParser=function (configuration){
+  console.log('update shuangpin parser')
+  this.model.setParser(configuration)
+}
 /**
  * Enables/Disables user dictionary for a given input tool.
  *

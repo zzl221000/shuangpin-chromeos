@@ -26,5 +26,11 @@
   },
   "init_sbc": {
     "message": "启用全角字符"
-  }
+  },
+  "schemas": {
+    "message": "双拼方案"
+  },
+  "add_custom_schema": {
+  "message": "添加自定义双拼方案"
+}
 }
