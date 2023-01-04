@@ -14,6 +14,11 @@ chrome打开`开发人员模式`，
 
 ## 配置
 ![extension config](/docs/screenshots.gif)
+
+### 常用双拼编码
+- `微软双拼*0*o*iuvljhkzfgrwmdcxn;sqsbwyrdtvpoyv`
+- `自然码*2*^*iuvljhkzfg^wmdcxnysqsbwyrdtvpovt`
+- `智能ABC*0*o*evaljhkqfgrdwtzxcysrsbdcptmmnovm`
 ## 编译
 ```shell
 # 安装依赖
